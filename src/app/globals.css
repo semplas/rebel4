@@ -1,98 +1,19 @@
 @import "tailwindcss";
 
-@keyframes gradient-x {
-  0% {
-    background-position: 0% 50%;
-    background-image: linear-gradient(135deg, #1a365d 0%, #4a1d96 50%, #1e3a8a 100%);
-  }
-  50% {
-    background-position: 100% 50%;
-    background-image: linear-gradient(135deg, #4a1d96 0%, #1e3a8a 50%, #1a365d 100%);
-  }
-  100% {
-    background-position: 0% 50%;
-    background-image: linear-gradient(135deg, #1a365d 0%, #4a1d96 50%, #1e3a8a 100%);
-  }
-}
-
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 12s linear infinite;
-}
-
-.animate-gradient-x {
-  background-size: 200% 200%;
-  animation: gradient-x 15s ease infinite;
-}
-
 :root {
-  /* Amazon-inspired color palette */
-  --primary-color: #131921; /* Amazon dark blue/black */
+  --primary-color: #131921;
   --secondary-color: #ffffff;
-  --accent-color: #ff9900; /* Amazon orange */
-  --accent-secondary: #146eb4; /* Amazon blue */
-  --light-bg: #eaeded; /* Amazon light gray background */
-  --button-yellow: #febd69; /* Amazon button yellow */
-  --button-hover: #f3a847; /* Amazon button hover */
-  --nav-footer: #232f3e; /* Amazon secondary nav color */
-  --success-green: #007600; /* Amazon price/success color */
+  --accent-color: #ff9900;
+  --accent-secondary: #146eb4;
   --glass-bg: rgba(255, 255, 255, 0.9);
   --glass-border: rgba(220, 220, 220, 0.5);
   --glass-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  
-  /* Alibaba-inspired color palette */
-  --alibaba-primary: #FF6A00; /* Alibaba orange */
-  --alibaba-secondary: #445268; /* Alibaba dark blue/gray */
-  --alibaba-light: #F7F8FA; /* Alibaba light background */
-  --alibaba-dark: #2C3E50; /* Alibaba dark text */
-  --alibaba-accent: #FF4747; /* Alibaba red accent */
-  --alibaba-success: #1AAD19; /* Alibaba green */
-  --alibaba-border: #E6E7EB; /* Alibaba border color */
-  --alibaba-hover: #FF8533; /* Alibaba hover state */
-  --alibaba-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 body {
-  background: var(--light-bg);
+  background: linear-gradient(135deg, #eaeded 0%, #f5f5f5 100%);
+  background-attachment: fixed;
   color: var(--primary-color);
-}
-
-/* Amazon-style button */
-.amazon-button {
-  background: linear-gradient(to bottom, #f7dfa5, var(--button-yellow));
-  border: 1px solid #a88734;
-  border-radius: 3px;
-  box-shadow: 0 1px 0 rgba(255,255,255,.4) inset;
-  color: #111;
-}
-
-.amazon-button:hover {
-  background: linear-gradient(to bottom, #f5d78e, var(--button-hover));
-}
-
-/* Amazon-style card */
-.amazon-card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  padding: 16px;
-}
-
-/* Amazon-style section heading */
-.amazon-heading {
-  font-size: 21px;
-  font-weight: 700;
-  line-height: 27.3px;
-  color: #0F1111;
-  margin-bottom: 10px;
 }
 
 /* Define glass class directly instead of using @apply */
@@ -154,84 +75,4 @@ body {
   border-top: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
   margin-top: 3rem;
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-
-/* Alibaba-style button */
-.alibaba-button {
-  background: var(--alibaba-primary);
-  color: white;
-  border: none;
-  border-radius: 2px;
-  box-shadow: var(--alibaba-shadow);
-  transition: all 0.3s ease;
-}
-
-.alibaba-button:hover {
-  background: var(--alibaba-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 106, 0, 0.2);
-}
-
-/* Alibaba-style card */
-.alibaba-card {
-  background-color: white;
-  border-radius: 2px;
-  border: 1px solid var(--alibaba-border);
-  box-shadow: var(--alibaba-shadow);
-  transition: all 0.3s ease;
-}
-
-.alibaba-card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-/* Alibaba-style heading */
-.alibaba-heading {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--alibaba-dark);
-  position: relative;
-  padding-bottom: 8px;
-}
-
-.alibaba-heading::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 40px;
-  height: 2px;
-  background-color: var(--alibaba-primary);
-}
-
-/* Alibaba-style input */
-.alibaba-input {
-  border: 1px solid var(--alibaba-border);
-  border-radius: 2px;
-  padding: 8px 12px;
-  transition: all 0.3s ease;
-}
-
-.alibaba-input:focus {
-  border-color: var(--alibaba-primary);
-  box-shadow: 0 0 0 2px rgba(255, 106, 0, 0.2);
-  outline: none;
-}
-
-/* Alibaba-style section */
-.alibaba-section {
-  background-color: var(--alibaba-light);
-  border-radius: 2px;
-  padding: 24px;
 }

@@ -8,7 +8,6 @@ import { Navigation, Pagination as SwiperPagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import BrandLoader from './BrandLoader';
 
 const Shop = () => {
   const [products, setProducts] = useState([]);
@@ -24,17 +23,15 @@ const Shop = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        setLoading(true);
         const response = await fetch('https://fakestoreapi.com/products');
         if (!response.ok) {
-          throw new Error(`Failed to fetch products: ${response.status}`);
+          throw new Error('Failed to fetch products');
         }
         const data = await response.json();
         setProducts(data);
+        setLoading(false);
       } catch (err) {
         setError(err.message);
-        console.error('Error fetching products:', err);
-      } finally {
         setLoading(false);
       }
     };
@@ -56,7 +53,7 @@ const Shop = () => {
   // Calculate total pages
   const totalPages = Math.ceil(products.length / productsPerPage);
 
-  if (loading) return <BrandLoader />;
+  if (loading) return <div className="loading">Loading products...</div>;
   if (error) return <div className="error">Error: {error}</div>;
 
   return (
