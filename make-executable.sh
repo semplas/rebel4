@@ -1,0 +1,1 @@
+chmod +x build-static.sh
