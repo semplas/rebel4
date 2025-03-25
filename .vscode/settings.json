@@ -1,3 +1,7 @@
 {
-    "bitoAI.codeCompletion.enableAutoCompletion": false
+    "augment.codeCompletion.enable": false,
+    "augment.codeCompletion.highlightSuggestionsInTheEditor": false,
+    "augment.codeCompletion.showDiffInHover": false,
+    "augment.codeCompletion.enableGlobalBackgroundSuggestions": false,
+    "augment.codeCompletion.enableBackgroundSuggestions": false
 }
