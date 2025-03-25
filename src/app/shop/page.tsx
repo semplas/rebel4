@@ -15,7 +15,7 @@ import 'swiper/css/pagination';
 // Mock product data - expanded to 50 products
 const generateProducts = () => {
   const categories = ['Formal', 'Casual', 'Athletic', 'Boots'];
-  const colors = ['Black', 'Brown', 'White', 'Tan', 'Gray', 'Beige', 'Navy', 'Burgundy'];
+  const colors = ['Black', 'Brown', 'White', 'Tan', 'Gray', 'Beige', 'Navy', 'Burguny'];
   const baseProducts = [
     { name: "Rebel Classic Oxford", basePrice: 249.99, category: "Formal" },
     { name: "Urban Street Runner", basePrice: 189.99, category: "Athletic" },
