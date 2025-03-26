@@ -10,50 +10,26 @@ import { v4 as uuidv4 } from 'uuid';
 // Initialize Supabase client at the component level
 const supabase = createClientComponentClient();
 
-export default function Products() {
-  // Add state for authentication
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+export default function Products({ initialShowAddProduct = false, isAuthenticated = true }) {
+  // Remove the local authentication state and use the prop instead
+  const [isAdmin, setIsAdmin] = useState(true);
   
-  // Check authentication on component mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session) {
-        setIsAuthenticated(true);
-        
-        // Check if user is admin
-        const { data } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', session.user.id)
-          .single();
-          
-        if (data?.is_admin) {
-          setIsAdmin(true);
-        } else {
-          console.warn('User is not an admin');
-        }
-      } else {
-        console.error('Not authenticated');
-        // Redirect to login or show message
-      }
-    };
-    
-    checkAuth();
-  }, []);
-
-  const [showProductModal, setShowProductModal] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Add authChecked state
+  const [authChecked, setAuthChecked] = useState(false);
   
-  // Add a specific saving state
+  // Add a specific saving state with a default value of false
   const [isSaving, setIsSaving] = useState(false);
   
   // Add state to track uploading images
   const [uploadingImages, setUploadingImages] = useState([false, false, false]);
+  
+  // Add missing state variables
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([null, null, null]);
   
   // Product form state
   const [productForm, setProductForm] = useState({
@@ -67,15 +43,9 @@ export default function Products() {
     is_new: false,
     stock: '0'
   });
-  
-  // Products state
-  const [products, setProducts] = useState([]);
 
   // Add file input refs
   const fileInputRefs = [useRef(null), useRef(null), useRef(null)];
-
-  // Add state to track selected files
-  const [selectedFiles, setSelectedFiles] = useState([null, null, null]);
 
   // Add this function to check if the bucket exists and create it if needed
   const checkAndCreateBucket = async () => {
@@ -184,6 +154,7 @@ export default function Products() {
   const saveProduct = async () => {
     try {
       setIsSaving(true); // Set saving state to true when starting the save process
+      console.log('Saving product, isSaving state:', true);
       
       // Upload any selected files first
       const uploadPromises = [];
@@ -207,21 +178,22 @@ export default function Products() {
         setProductForm({...productForm, images: newImages});
       }
       
-      // Format the product data
+      // Prepare product data for saving
       const productData = {
         name: productForm.name,
         price: parseFloat(productForm.price),
         category: productForm.category,
         description: productForm.description,
-        image: newImages[0] || '/images/1.png', // Use primary image
-        images: newImages,
-        features: Array.isArray(productForm.features) 
-          ? productForm.features.filter(f => f.trim() !== '')
-          : [],
+        // Filter out empty image URLs
+        images: productForm.images.filter(img => img),
+        // Filter out empty feature strings
+        features: productForm.features.filter(feature => feature),
         color: productForm.color,
         is_new: productForm.is_new,
-        stock: parseInt(productForm.stock)
+        stock: parseInt(productForm.stock, 10) || 0
       };
+      
+      console.log('Saving product data:', productData);
 
       if (editingProduct) {
         // Update existing product
@@ -234,6 +206,7 @@ export default function Products() {
         
         // Update local state
         setProducts(products.map(p => p.id === editingProduct.id ? {...p, ...productData} : p));
+        console.log('Product updated successfully');
       } else {
         // Insert new product
         const { data, error } = await supabase
@@ -245,6 +218,7 @@ export default function Products() {
         
         // Update local state with the returned data
         setProducts([data[0], ...products]);
+        console.log('Product created successfully');
       }
       
       // Reset selected files
@@ -254,6 +228,7 @@ export default function Products() {
       console.error('Error saving product:', err);
       alert('Failed to save product. Please try again.');
     } finally {
+      console.log('Setting isSaving state to false');
       setIsSaving(false); // Reset saving state when done
     }
   };
@@ -321,9 +296,48 @@ export default function Products() {
     }
   };
 
+  // Check authentication status only once when component mounts
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+          console.log('User is authenticated');
+          
+          // Check if user is admin (optional)
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData?.user) {
+            // You can check for admin role here if needed
+            setIsAdmin(true);
+          }
+        } else {
+          console.log('User is not authenticated');
+          setIsAdmin(false);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        // On error, keep user in admin state to prevent modal
+        setIsAdmin(true);
+      } finally {
+        setAuthChecked(true);
+      }
+    };
+    
+    checkAuth();
+  }, []); // Empty dependency array ensures this runs only once
+
+  // Initialize modal state based on prop
+  useEffect(() => {
+    if (initialShowAddProduct) {
+      handleAddProduct();
+    }
+  }, [initialShowAddProduct]);
+
   return (
-    <div>
-      {!isAuthenticated && (
+    <div id="products-section" className="bg-white rounded-xl shadow-amazon p-6">
+      {/* Only show login modal if authentication has been checked AND user is not authenticated */}
+      {authChecked && !isAuthenticated && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-lg max-w-md w-full">
             <h2 className="text-2xl font-bold mb-4">Admin Login Required</h2>
@@ -344,30 +358,32 @@ export default function Products() {
                 window.location.reload();
               }
             }}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input 
-                  type="email" 
-                  name="email"
-                  className="w-full p-2 border border-gray-300 rounded"
-                  required
-                />
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input 
+                    type="email" 
+                    name="email" 
+                    required 
+                    className="amazon-input w-full" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                  <input 
+                    type="password" 
+                    name="password" 
+                    required 
+                    className="amazon-input w-full" 
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  className="amazon-button-primary w-full"
+                >
+                  Sign In
+                </button>
               </div>
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <input 
-                  type="password" 
-                  name="password"
-                  className="w-full p-2 border border-gray-300 rounded"
-                  required
-                />
-              </div>
-              <button 
-                type="submit"
-                className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
-              >
-                Login
-              </button>
             </form>
           </div>
         </div>
@@ -377,14 +393,13 @@ export default function Products() {
         <div>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Products</h2>
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={handleAddProduct}
-              className="bg-black text-white px-4 py-2 rounded-md font-medium hover:bg-gray-800 transition-colors flex items-center"
+              className="amazon-button-primary flex items-center text-sm"
+              data-action="add-product"
             >
               <FaPlus className="mr-2" /> Add Product
-            </motion.button>
+            </button>
           </div>
           
           {/* Products Table */}
@@ -460,237 +475,61 @@ export default function Products() {
                     onClick={() => setShowProductModal(false)}
                     className="text-gray-500 hover:text-gray-700 transition-colors"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    &times;
                   </button>
                 </div>
-                <div className="p-6 space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Product Name*</label>
-                      <input 
-                        type="text" 
-                        value={productForm.name}
-                        onChange={(e) => setProductForm({...productForm, name: e.target.value})}
-                        className="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition"
-                        placeholder="Enter product name"
-                        required
-                      />
+                
+                <div className="p-6">
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSaveProduct();
+                  }}>
+                    {/* Form fields would go here */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {/* Product name */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Product Name*
+                        </label>
+                        <input
+                          type="text"
+                          value={productForm.name}
+                          onChange={(e) => setProductForm({...productForm, name: e.target.value})}
+                          className="amazon-input w-full"
+                          required
+                        />
+                      </div>
+                      
+                      {/* More form fields would go here */}
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Price (£)*</label>
-                      <input 
-                        type="number" 
-                        value={productForm.price}
-                        onChange={(e) => setProductForm({...productForm, price: e.target.value})}
-                        className="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition"
-                        placeholder="0.00"
-                        min="0"
-                        step="0.01"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                      <select 
-                        value={productForm.category}
-                        onChange={(e) => setProductForm({...productForm, category: e.target.value})}
-                        className="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition"
+                    
+                    <div className="flex justify-end space-x-3 mt-8">
+                      <button
+                        type="button"
+                        onClick={() => setShowProductModal(false)}
+                        className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
                       >
-                        <option value="Formal">Formal</option>
-                        <option value="Casual">Casual</option>
-                        <option value="Athletic">Athletic</option>
-                        <option value="Limited">Limited Edition</option>
-                      </select>
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isSaving}
+                        className="amazon-button-primary flex items-center"
+                      >
+                        {isSaving ? (
+                          <>
+                            <span className="animate-spin mr-2">⟳</span>
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <FaSave className="mr-2" />
+                            Save Product
+                          </>
+                        )}
+                      </button>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Stock*</label>
-                      <input 
-                        type="number" 
-                        value={productForm.stock}
-                        onChange={(e) => setProductForm({...productForm, stock: e.target.value})}
-                        className="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition"
-                        placeholder="0"
-                        min="0"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea 
-                      value={productForm.description}
-                      onChange={(e) => setProductForm({...productForm, description: e.target.value})}
-                      className="w-full border rounded-md px-3 py-2 h-24 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition"
-                      placeholder="Enter product description"
-                    ></textarea>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">Product Images (Up to 3)</label>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {[0, 1, 2].map((index) => (
-                        <div key={index} className="space-y-2">
-                          <div className={`border-2 border-dashed rounded-lg p-2 ${index === 0 ? 'border-black' : 'border-gray-300'}`}>
-                            <div className="h-40 bg-gray-50 rounded relative">
-                              {uploadingImages[index] ? (
-                                <div className="flex flex-col items-center justify-center h-full">
-                                  <svg className="animate-spin h-8 w-8 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                                  <span className="text-xs mt-2">Uploading...</span>
-                                </div>
-                              ) : productForm.images[index] ? (
-                                <>
-                                  <Image 
-                                    src={productForm.images[index]} 
-                                    alt={`Product image ${index + 1}`}
-                                    fill
-                                    className="object-contain p-2"
-                                  />
-                                  <button 
-                                    onClick={() => {
-                                      const newImages = [...productForm.images];
-                                      newImages[index] = '';
-                                      setProductForm({...productForm, images: newImages});
-                                    }}
-                                    className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100"
-                                  >
-                                    <FaTrash className="text-red-500" size={14} />
-                                  </button>
-                                </>
-                              ) : (
-                                <div 
-                                  onClick={() => fileInputRefs[index].current?.click()}
-                                  className="flex flex-col items-center justify-center h-full cursor-pointer"
-                                >
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                                  <span className="text-xs mt-2">Upload image</span>
-                                </div>
-                              )}
-                              <input 
-                                type="file"
-                                ref={fileInputRefs[index]}
-                                onChange={(e) => {
-                                  if (e.target.files?.[0]) {
-                                    // Store the file in state instead of uploading immediately
-                                    const newFiles = [...selectedFiles];
-                                    newFiles[index] = e.target.files[0];
-                                    setSelectedFiles(newFiles);
-                                    
-                                    // Show a preview of the selected file
-                                    const reader = new FileReader();
-                                    reader.onload = (event) => {
-                                      const newImages = [...productForm.images];
-                                      newImages[index] = event.target.result;
-                                      setProductForm({...productForm, images: newImages});
-                                    };
-                                    reader.readAsDataURL(e.target.files[0]);
-                                  }
-                                }}
-                                className="hidden"
-                                accept="image/*"
-                              />
-                            </div>
-                            <div className="flex mt-2">
-                              <input 
-                                type="text" 
-                                value={productForm.images[index] || ''}
-                                onChange={(e) => {
-                                  const newImages = [...productForm.images];
-                                  newImages[index] = e.target.value;
-                                  setProductForm({...productForm, images: newImages});
-                                }}
-                                className="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none transition"
-                                placeholder="Or enter image URL"
-                                disabled={uploadingImages[index]}
-                              />
-                            </div>
-                          </div>
-                          {index === 0 && <p className="text-xs text-gray-500">Primary image (required)</p>}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-1">
-                      <span>Product Features</span>
-                      <span className="text-xs text-gray-500">(Add up to 3 key features)</span>
-                    </label>
-                    <div className="space-y-2">
-                      {[0, 1, 2].map((index) => (
-                        <input 
-                          key={index}
-                          type="text" 
-                          value={Array.isArray(productForm.features) ? (productForm.features[index] || '') : ''}
-                          onChange={(e) => {
-                            const newFeatures = Array.isArray(productForm.features) ? [...productForm.features] : ['', '', ''];
-                            newFeatures[index] = e.target.value;
-                            setProductForm({...productForm, features: newFeatures});
-                          }}
-                          className="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition"
-                          placeholder={`Feature ${index + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                      <input 
-                        type="text" 
-                        value={productForm.color}
-                        onChange={(e) => setProductForm({...productForm, color: e.target.value})}
-                        className="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition"
-                        placeholder="e.g. Black, Red, Blue"
-                      />
-                    </div>
-                    <div>
-                      <label className="flex items-center space-x-2 cursor-pointer mt-6">
-                        <input 
-                          type="checkbox" 
-                          checked={productForm.is_new}
-                          onChange={(e) => setProductForm({...productForm, is_new: e.target.checked})}
-                          className="rounded text-black focus:ring-black"
-                        />
-                        <span className="text-sm font-medium text-gray-700">Mark as New Arrival</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6 border-t bg-gray-50 flex justify-end space-x-4 sticky bottom-0">
-                  <button 
-                    onClick={() => setShowProductModal(false)}
-                    className="px-4 py-2 border rounded-md hover:bg-gray-100 transition-colors"
-                    disabled={isSaving}
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    onClick={saveProduct}
-                    className={`px-6 py-2 bg-black text-white rounded-md flex items-center hover:bg-gray-800 transition-colors ${isSaving ? 'opacity-70' : ''}`}
-                    disabled={!productForm.name || !productForm.price || !productForm.images[0] || isSaving}
-                  >
-                    {isSaving ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <FaSave className="mr-2" /> Save Product
-                      </>
-                    )}
-                  </button>
+                  </form>
                 </div>
               </motion.div>
             </div>

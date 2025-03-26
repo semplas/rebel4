@@ -3,25 +3,122 @@
 @tailwind utilities;
 
 :root {
-  --accent-color: #6366f1;
-  --primary-color: #1e293b;
-  --background-color: #eaeded;
+  --accent-color: #FF9900; /* Amazon orange */
+  --primary-color: #131921; /* Amazon dark blue/black */
+  --secondary-color: #232F3E; /* Amazon navy blue */
+  --background-color: #EAEDED; /* Amazon light gray */
+  --success-color: #007600; /* Amazon green */
+  --warning-color: #C60;    /* Amazon amber */
+  --danger-color: #B12704;  /* Amazon red */
+  --link-color: #007185;    /* Amazon teal */
 }
 
 @layer components {
   .glass-card {
-    @apply bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl shadow-lg transition-all;
+    @apply bg-white shadow-md border border-gray-200 rounded-md transition-all;
   }
   
   .glass-card:hover {
-    @apply shadow-xl;
+    @apply shadow-lg;
   }
   
   .glass-button {
-    @apply bg-accent-color text-white transition-colors;
+    @apply bg-accent-color text-black font-medium transition-colors rounded-md;
   }
   
   .glass-button:hover {
-    @apply bg-opacity-90;
+    @apply bg-[#F0AD4E] shadow-md;
+  }
+  
+  .amazon-button-primary {
+    @apply bg-accent-color hover:bg-[#F0AD4E] text-black font-medium py-2 px-4 rounded-md transition-colors;
+  }
+  
+  .amazon-button-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-black font-medium py-2 px-4 rounded-md transition-colors;
+  }
+  
+  .amazon-input {
+    @apply border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-accent-color focus:border-accent-color;
+  }
+  
+  .amazon-link {
+    @apply text-link-color hover:text-[#C7511F] hover:underline;
+  }
+}
+
+/* Add additional Amazon-themed components */
+@layer components {
+  /* Amazon-style cards */
+  .amazon-card {
+    @apply bg-white shadow-amazon rounded-md border border-gray-200 transition-all hover:shadow-amazon-hover;
+  }
+  
+  /* Amazon-style tables */
+  .amazon-table {
+    @apply min-w-full divide-y divide-gray-200;
+  }
+  
+  .amazon-table th {
+    @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50;
+  }
+  
+  .amazon-table td {
+    @apply px-4 py-3 text-sm;
+  }
+  
+  .amazon-table tr {
+    @apply hover:bg-gray-50;
+  }
+  
+  /* Amazon-style form elements */
+  .amazon-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+  
+  .amazon-select {
+    @apply border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-accent-color focus:border-accent-color;
+  }
+  
+  .amazon-textarea {
+    @apply border border-gray-300 rounded-md px-3 py-2 focus:ring-1 focus:ring-accent-color focus:border-accent-color;
+  }
+  
+  /* Amazon-style badges */
+  .amazon-badge {
+    @apply px-2 py-1 text-xs rounded-full inline-flex items-center;
+  }
+  
+  .amazon-badge-success {
+    @apply bg-success-color/20 text-success-color;
+  }
+  
+  .amazon-badge-warning {
+    @apply bg-warning-color/20 text-warning-color;
+  }
+  
+  .amazon-badge-danger {
+    @apply bg-danger-color/20 text-danger-color;
+  }
+  
+  .amazon-badge-info {
+    @apply bg-link-color/20 text-link-color;
+  }
+  
+  /* Amazon-style modals */
+  .amazon-modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  }
+  
+  .amazon-modal {
+    @apply bg-white p-6 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto;
+  }
+  
+  .amazon-modal-header {
+    @apply flex justify-between items-center mb-4;
+  }
+  
+  .amazon-modal-footer {
+    @apply flex justify-end space-x-3 pt-4 border-t mt-6;
   }
 }

@@ -457,7 +457,7 @@ export default function ShopPage() {
                               whileTap={{ scale: 0.95 }}
                               className="w-full glass-button py-2.5 rounded-full uppercase tracking-wider text-sm font-bold shadow-md hover:shadow-lg transition-all text-center"
                             >
-                              View Details
+                              Buy Now
                             </motion.div>
                           </div>
                         </div>

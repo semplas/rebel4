@@ -10,6 +10,8 @@
     "export": "next export",
     "db:migrate": "node scripts/migrate-db.js",
     "db:fix-storage": "node scripts/fix_storage_policies.js",
+    "db:fix-banners": "node scripts/fix_banners_storage_policies.js",
+    "db:fix-banners-table": "node scripts/fix_banners_table_policies.js",
     "db:make-admin": "node scripts/make_admin.js"
   },
   "dependencies": {

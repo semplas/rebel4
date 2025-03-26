@@ -102,7 +102,7 @@ const Shop = () => {
                     <h3 className="text-lg font-medium mb-2 line-clamp-2">{product.title}</h3>
                     <p className="text-xl font-bold mb-4">${product.price.toFixed(2)}</p>
                     <button className="mt-auto bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition">
-                      Add to Cart
+                      Buy Now
                     </button>
                   </div>
                 </div>
@@ -130,7 +130,7 @@ const Shop = () => {
                   <h3 className="text-lg font-medium mb-2 line-clamp-2">{product.title}</h3>
                   <p className="text-xl font-bold mb-4">${product.price.toFixed(2)}</p>
                   <button className="mt-auto bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition">
-                    Add to Cart
+                    Buy Now
                   </button>
                 </div>
               </motion.div>
