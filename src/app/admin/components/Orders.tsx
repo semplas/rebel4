@@ -127,11 +127,13 @@ export default function Orders() {
     }
   };
 
+  // Update the status colors to match Amazon theme
   const getStatusColor = (status: string) => {
     switch(status) {
-      case 'Processing': return 'bg-yellow-100 text-yellow-800';
-      case 'Shipped': return 'bg-blue-100 text-blue-800';
-      case 'Delivered': return 'bg-green-100 text-green-800';
+      case 'Processing': return 'bg-warning-color/20 text-warning-color';
+      case 'Shipped': return 'bg-link-color/20 text-link-color';
+      case 'Delivered': return 'bg-success-color/20 text-success-color';
+      case 'Cancelled': return 'bg-danger-color/20 text-danger-color';
       default: return 'bg-gray-100 text-gray-800';
     }
   };

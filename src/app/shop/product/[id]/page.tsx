@@ -1,55 +1,27 @@
 import { Suspense } from 'react';
-import ProductDetailClient from './ProductDetailClient';
-import { createClient } from '@supabase/supabase-js';
+import { generateStaticParams } from './generateStaticParams';
 
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Export the generateStaticParams function
+export { generateStaticParams };
 
-// Define generateStaticParams directly in the page file
-export async function generateStaticParams() {
-  // Hardcoded IDs to ensure we always have something
-  const fallbackIds = [
-    { id: '1' },
-    { id: '2' },
-    { id: '3' },
-    { id: '4' },
-    { id: '5' },
-    { id: '40e1f01f-c321-45b5-8e36-638c6f7e34f9' }
-  ];
-  
-  // Only run in production to avoid errors in development
-  if (process.env.NODE_ENV !== 'production') {
-    return fallbackIds;
-  }
-  
-  try {
-    // Fetch all product IDs from Supabase
-    const { data, error } = await supabase
-      .from('products')
-      .select('id');
-      
-    if (error) {
-      console.error('Error fetching product IDs:', error);
-      return fallbackIds;
-    }
-    
-    // Map the data to the expected format
-    const params = data.map(product => ({
-      id: String(product.id)
-    }));
-    
-    return params.length > 0 ? params : fallbackIds;
-  } catch (err) {
-    console.error('Failed to generate static params:', err);
-    return fallbackIds;
-  }
+// Component that uses client hooks
+function ProductDetailClient() {
+  // Import client components and hooks here
+  // ...
+  return (
+    <div>
+      {/* Product detail content */}
+    </div>
+  );
 }
 
 export default function ProductDetailPage() {
   return (
-    <Suspense fallback={<div>Loading product...</div>}>
+    <Suspense fallback={
+      <div className="w-full py-20 flex items-center justify-center">
+        <div className="animate-pulse text-xl font-bold">Loading product...</div>
+      </div>
+    }>
       <ProductDetailClient />
     </Suspense>
   );

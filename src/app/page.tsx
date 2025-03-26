@@ -1,17 +1,21 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { createClient } from '@supabase/supabase-js';
+import { Suspense } from 'react';
 
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Component that uses client hooks
+function HomeContent() {
+  // Move all imports inside this function to avoid hydration issues
+  const { useState, useEffect, useRef } = require('react');
+  const Link = require('next/link').default;
+  const Image = require('next/image').default;
+  const { motion } = require('framer-motion');
+  const { createClient } = require('@supabase/supabase-js');
 
-export default function Home() {
+  // Initialize Supabase client
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef(null);
@@ -269,7 +273,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 * index }}
               whileHover={{ y: -5 }}
-              className="glass-card group relative overflow-hidden"
+              className="amazon-card group relative overflow-hidden rounded-lg"
             >
               <Link href={`/shop?category=${category.name.toLowerCase()}`} className="block h-full">
                 <div className="relative h-64 sm:h-72 md:h-80 overflow-hidden">
@@ -280,17 +284,19 @@ export default function Home() {
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-70"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary-color/90 via-primary-color/50 to-transparent"></div>
                 </div>
                 
                 <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <div className="glass p-3 rounded-lg">
-                    <h3 className="text-primary-color text-xl font-bold mb-1">{category.name}</h3>
-                    <div className="flex items-center text-accent-color text-sm">
-                      <span className="mr-2">Shop Now</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                      </svg>
+                  <div className="p-4 rounded-lg bg-white/90 backdrop-blur-sm">
+                    <h3 className="text-primary-color text-xl font-bold mb-2">{category.name}</h3>
+                    <div className="flex items-center">
+                      <span className="amazon-button-primary py-1 px-3 text-sm inline-flex items-center">
+                        Shop Now
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2 group-hover:translate-x-1 transition-transform">
+                          <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -382,9 +388,18 @@ export default function Home() {
                           className="object-cover p-4 transition-all duration-500 hover:scale-110"
                         />
                       </div>
-                      <div className="p-3 sm:p-4 md:p-5 flex-grow flex flex-col">
-                        <h3 className="font-bold text-sm sm:text-base">{product.name}</h3>
-                        <p className="text-accent-color font-semibold mt-1">${product.price.toFixed(2)}</p>
+                      <div className="p-5 flex-grow flex flex-col">
+                        <h3 className="font-bold text-primary-color line-clamp-1">{product.name}</h3>
+                        <p className="text-accent-color font-bold mt-1 text-lg">£{product.price}</p>
+                        <div className="mt-auto pt-4">
+                          <motion.div 
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="w-full glass-button py-2.5 rounded-full uppercase tracking-wider text-sm font-bold shadow-md hover:shadow-lg transition-all text-center"
+                          >
+                            Buy Now
+                          </motion.div>
+                        </div>
                       </div>
                     </div>
                   </Link>
@@ -414,9 +429,18 @@ export default function Home() {
                         className="object-cover p-4 transition-all duration-500 hover:scale-110"
                       />
                     </div>
-                    <div className="p-3 sm:p-4 md:p-5 flex-grow flex flex-col">
-                      <h3 className="font-bold text-sm sm:text-base">{product.name}</h3>
-                      <p className="text-accent-color font-semibold mt-1">${product.price.toFixed(2)}</p>
+                    <div className="p-5 flex-grow flex flex-col">
+                      <h3 className="font-bold text-primary-color line-clamp-1">{product.name}</h3>
+                      <p className="text-accent-color font-bold mt-1 text-lg">£{product.price}</p>
+                      <div className="mt-auto pt-4">
+                        <motion.div 
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="w-full glass-button py-2.5 rounded-full uppercase tracking-wider text-sm font-bold shadow-md hover:shadow-lg transition-all text-center"
+                        >
+                          Buy Now
+                        </motion.div>
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -483,8 +507,8 @@ export default function Home() {
               <div className="relative w-72 h-72 md:w-96 md:h-96 mx-auto">
                 <div className="absolute inset-0 rounded-full bg-white shadow-xl"></div>
                 
-                {/* Larger Badge positioned closer to image */}
-                <div className="absolute -top-2 -right-2 bg-gradient-to-br from-red-600 to-red-700 text-white font-bold rounded-full h-28 w-28 flex items-center justify-center shadow-lg border-2 border-white">
+                {/* Larger Badge positioned in front of the image */}
+                <div className="absolute -top-2 -right-2 bg-gradient-to-br from-red-600 to-red-700 text-white font-bold rounded-full h-28 w-28 flex items-center justify-center shadow-lg border-2 border-white z-10">
                   <div className="text-center">
                     <div className="text-3xl font-extrabold leading-none">20%</div>
                     <div className="text-sm uppercase tracking-wider">OFF</div>
@@ -553,6 +577,17 @@ export default function Home() {
         </div>
       </motion.section>
     </div>
+  );
+}
+
+// Main page component with Suspense
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="w-full h-screen flex items-center justify-center">
+      <div className="animate-pulse text-xl font-bold">Loading...</div>
+    </div>}>
+      <HomeContent />
+    </Suspense>
   );
 }
 
