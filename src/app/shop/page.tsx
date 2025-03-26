@@ -53,7 +53,7 @@ export default function ShopPage() {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [activeFilters, setActiveFilters] = useState({
-    category: '',
+    productType: '',
     color: '',
     isNew: false,
     priceRange: [0, 500]
@@ -108,8 +108,8 @@ export default function ShopPage() {
     
     let result = [...products];
     
-    if (activeFilters.category) {
-      result = result.filter(p => p.category === activeFilters.category);
+    if (activeFilters.productType) {
+      result = result.filter(p => p.productType === activeFilters.productType);
     }
     
     if (activeFilters.color) {
@@ -263,32 +263,32 @@ export default function ShopPage() {
           <div className="glass p-6 rounded-lg sticky top-24">
             <h2 className="text-xl font-bold mb-6">Filters</h2>
             
-            {/* Category Filter */}
+            {/* Product Type Filter */}
             <div className="mb-6">
-              <h3 className="text-sm font-medium uppercase tracking-wider mb-3">Category</h3>
+              <h3 className="text-sm font-medium uppercase tracking-wider mb-3">Product Type</h3>
               <div className="space-y-2">
                 <div className="flex items-center">
                   <input 
                     type="radio" 
-                    id="category-all" 
-                    name="category" 
-                    checked={activeFilters.category === ''}
-                    onChange={() => handleFilterChange('category', '')}
+                    id="type-all" 
+                    name="productType" 
+                    checked={activeFilters.productType === ''}
+                    onChange={() => handleFilterChange('productType', '')}
                     className="mr-2"
                   />
-                  <label htmlFor="category-all">All Categories</label>
+                  <label htmlFor="type-all">All Types</label>
                 </div>
-                {categories.map(category => (
-                  <div key={category} className="flex items-center">
+                {['Customs', 'Materials', 'Paints', 'Plain'].map(type => (
+                  <div key={type} className="flex items-center">
                     <input 
                       type="radio" 
-                      id={`category-${category.toLowerCase()}`}
-                      name="category"
-                      checked={activeFilters.category === category}
-                      onChange={() => handleFilterChange('category', category)}
+                      id={`type-${type.toLowerCase()}`}
+                      name="productType"
+                      checked={activeFilters.productType === type}
+                      onChange={() => handleFilterChange('productType', type)}
                       className="mr-2"
                     />
-                    <label htmlFor={`category-${category.toLowerCase()}`}>{category}</label>
+                    <label htmlFor={`type-${type.toLowerCase()}`}>{type}</label>
                   </div>
                 ))}
               </div>
@@ -361,7 +361,7 @@ export default function ShopPage() {
             {/* Clear Filters Button */}
             <button 
               onClick={() => setActiveFilters({
-                category: '',
+                productType: '',
                 color: '',
                 isNew: false,
                 priceRange: [0, 500]

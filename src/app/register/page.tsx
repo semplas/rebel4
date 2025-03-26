@@ -1,59 +1,42 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const router = useRouter();
   const supabase = createClientComponentClient();
 
-  useEffect(() => {
-    // Check if redirected from registration
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('registered') === 'true') {
-      setRegistrationSuccess(true);
-    }
-    
-    // Safety timeout to prevent stuck loading state
-    let loadingTimeout;
-    if (loading) {
-      loadingTimeout = setTimeout(() => {
-        setLoading(false);
-        setError('Request timed out. Please try again.');
-      }, 10000); // 10 seconds timeout
-    }
-    
-    return () => {
-      if (loadingTimeout) clearTimeout(loadingTimeout);
-    };
-  }, [loading]);
-
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
     try {
-      console.log('Attempting login with:', email);
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signUp({
         email,
         password
       });
 
       if (error) throw error;
       
-      console.log('Login successful, redirecting...');
-      // Redirect to admin page on successful login
-      router.push('/admin');
+      // Redirect to login page with success message
+      router.push('/login?registered=true');
     } catch (err) {
-      console.error('Login error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -65,15 +48,10 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Admin Login
+            Create an account
           </h2>
         </div>
-        {registrationSuccess && (
-          <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md text-center">
-            Account created successfully! Please check your email to confirm your registration.
-          </div>
-        )}
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <form className="mt-8 space-y-6" onSubmit={handleRegister}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email-address" className="sr-only">
@@ -99,12 +77,28 @@ export default function LoginPage() {
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-accent-color focus:border-accent-color focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-accent-color focus:border-accent-color focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="confirm-password" className="sr-only">
+                Confirm Password
+              </label>
+              <input
+                id="confirm-password"
+                name="confirm-password"
+                type="password"
+                autoComplete="new-password"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-accent-color focus:border-accent-color focus:z-10 sm:text-sm"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
           </div>
@@ -119,16 +113,17 @@ export default function LoginPage() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-accent-color hover:bg-accent-color-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-color"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? 'Creating account...' : 'Sign up'}
             </button>
           </div>
+          
+          <div className="text-sm text-center">
+            Already have an account?{' '}
+            <Link href="/login" className="font-medium text-accent-color hover:text-accent-color-dark">
+              Sign in
+            </Link>
+          </div>
         </form>
-        <div className="text-sm text-center mt-4">
-          Don't have an account?{' '}
-          <Link href="/register" className="font-medium text-accent-color hover:text-accent-color-dark">
-            Sign up
-          </Link>
-        </div>
       </div>
     </div>
   );

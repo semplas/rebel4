@@ -20,7 +20,7 @@ export default function Footer() {
         </div>
         
         <div>
-          <h3 className="font-bold text-lg mb-4">Shop</h3>
+          <h3 className="font-bold text-lg mb-4">Shoes</h3>
           <ul className="space-y-2">
             {['All Products', 'New Arrivals', 'Best Sellers', 'Sale'].map((item) => (
               <li key={item}>

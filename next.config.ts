@@ -6,6 +6,8 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// Adding a comment to test Augment
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable static export in production
@@ -23,6 +25,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "lnnrzyefherqaftvqomt.supabase.co"
+      },
+      {
+        protocol: "https",
+        hostname: "*.supabase.co"
       }
     ]
   },

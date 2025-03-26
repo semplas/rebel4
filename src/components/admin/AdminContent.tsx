@@ -2,37 +2,139 @@
 
 import React, { useState, useEffect } from 'react';
 import AdminLogin from '@/components/admin/AdminLogin';
-import { createClient } from '@supabase/supabase-js';
+import Dashboard from '@/app/admin/components/Dashboard';
+import Products from '@/app/admin/components/Products';
+import Orders from '@/app/admin/components/Orders';
+import Banners from '@/app/admin/components/Banners';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { FaChartLine, FaBoxOpen, FaShoppingCart, FaImages } from 'react-icons/fa';
 
 export default function AdminContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const supabase = createClientComponentClient();
   
   // Authentication logic
   useEffect(() => {
     const checkAuth = async () => {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-      const supabase = createClient(supabaseUrl, supabaseAnonKey);
-      
       const { data: { session } } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
       setIsLoading(false);
+      
+      // Set up auth state listener
+      const { data: { subscription } } = await supabase.auth.onAuthStateChange(
+        (event, session) => {
+          setIsAuthenticated(!!session);
+        }
+      );
+      
+      return () => {
+        subscription.unsubscribe();
+      };
     };
     
     checkAuth();
-  }, []);
+  }, [supabase.auth]);
+  
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
   
   if (isLoading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-background-color">
+        <div className="amazon-card p-8 text-center">
+          <div className="w-16 h-16 border-4 border-accent-color border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg">Loading admin panel...</p>
+        </div>
+      </div>
+    );
   }
   
-  return isAuthenticated ? (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      <p>Welcome to the admin area!</p>
+  if (!isAuthenticated) {
+    return <AdminLogin />;
+  }
+  
+  return (
+    <div className="min-h-screen bg-background-color">
+      <div className="bg-primary-color text-white shadow-md">
+        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+          <h1 className="text-xl font-bold">Awaknd Rebel Admin</h1>
+          <button 
+            onClick={handleLogout}
+            className="px-3 py-1 text-sm bg-accent-color text-black rounded hover:bg-[#F0AD4E] transition-colors"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+      
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Sidebar Navigation */}
+          <div className="w-full md:w-64 flex-shrink-0">
+            <div className="amazon-card p-4 sticky top-6">
+              <nav className="space-y-1">
+                <NavItem 
+                  icon={<FaChartLine />} 
+                  label="Dashboard" 
+                  id="dashboard" 
+                  activeTab={activeTab} 
+                  setActiveTab={setActiveTab} 
+                />
+                <NavItem 
+                  icon={<FaBoxOpen />} 
+                  label="Products" 
+                  id="products" 
+                  activeTab={activeTab} 
+                  setActiveTab={setActiveTab} 
+                />
+                <NavItem 
+                  icon={<FaShoppingCart />} 
+                  label="Orders" 
+                  id="orders" 
+                  activeTab={activeTab} 
+                  setActiveTab={setActiveTab} 
+                />
+                <NavItem 
+                  icon={<FaImages />} 
+                  label="Banners" 
+                  id="banners" 
+                  activeTab={activeTab} 
+                  setActiveTab={setActiveTab} 
+                />
+              </nav>
+            </div>
+          </div>
+          
+          {/* Main Content Area */}
+          <div className="flex-1">
+            {activeTab === 'dashboard' && <Dashboard isAuthenticated={isAuthenticated} />}
+            {activeTab === 'products' && <Products />}
+            {activeTab === 'orders' && <Orders />}
+            {activeTab === 'banners' && <Banners />}
+          </div>
+        </div>
+      </div>
     </div>
-  ) : (
-    <AdminLogin />
+  );
+}
+
+function NavItem({ icon, label, id, activeTab, setActiveTab }) {
+  const isActive = activeTab === id;
+  
+  return (
+    <button
+      onClick={() => setActiveTab(id)}
+      className={`w-full flex items-center px-4 py-3 rounded-md text-sm font-medium transition-colors ${
+        isActive 
+          ? 'bg-accent-color text-black' 
+          : 'text-gray-700 hover:bg-gray-100'
+      }`}
+    >
+      <span className="mr-3">{icon}</span>
+      {label}
+    </button>
   );
 }

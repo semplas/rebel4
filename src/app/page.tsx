@@ -51,12 +51,12 @@ function HomeContent() {
     fetchProducts();
   }, []);
 
-  // Categories data
-  const categories = [
-    { name: "Casual", image: "/images/1.png" },
-    { name: "Formal", image: "/images/1.png" },
-    { name: "Athletic", image: "/images/1.png" },
-    { name: "Boots", image: "/images/1.png" }
+  // Product types data
+  const productTypes = [
+    { name: "Customs", image: "/images/1.png" },
+    { name: "Materials", image: "/images/1.png" },
+    { name: "Paints", image: "/images/1.png" },
+    { name: "Plain", image: "/images/1.png" }
   ];
 
   // Countdown timer state
@@ -110,12 +110,15 @@ function HomeContent() {
     let animationId;
     let scrollPosition = 0;
     const scrollSpeed = 0.5;
-    const containerWidth = scrollContainer.scrollWidth;
     
     const scroll = () => {
+      // Get the current container width each time to handle responsive changes
+      const containerWidth = scrollContainer.scrollWidth;
+      const visibleWidth = scrollContainer.offsetWidth;
+      
       scrollPosition += scrollSpeed;
       
-      // Reset position when we've scrolled half the items
+      // Reset position when we've scrolled through all items
       if (scrollPosition >= containerWidth / 2) {
         scrollPosition = 0;
       }
@@ -124,22 +127,48 @@ function HomeContent() {
       animationId = requestAnimationFrame(scroll);
     };
     
+    // Start the animation
     animationId = requestAnimationFrame(scroll);
     
     // Pause on hover
-    const handleMouseEnter = () => cancelAnimationFrame(animationId);
+    const handleMouseEnter = () => {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    };
+    
     const handleMouseLeave = () => {
-      animationId = requestAnimationFrame(scroll);
+      if (!animationId) {
+        animationId = requestAnimationFrame(scroll);
+      }
+    };
+    
+    // Add touch events for mobile
+    const handleTouchStart = () => {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    };
+    
+    const handleTouchEnd = () => {
+      if (!animationId) {
+        animationId = requestAnimationFrame(scroll);
+      }
     };
     
     scrollContainer.addEventListener('mouseenter', handleMouseEnter);
     scrollContainer.addEventListener('mouseleave', handleMouseLeave);
+    scrollContainer.addEventListener('touchstart', handleTouchStart);
+    scrollContainer.addEventListener('touchend', handleTouchEnd);
     
     return () => {
-      cancelAnimationFrame(animationId);
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      
       if (scrollContainer) {
         scrollContainer.removeEventListener('mouseenter', handleMouseEnter);
         scrollContainer.removeEventListener('mouseleave', handleMouseLeave);
+        scrollContainer.removeEventListener('touchstart', handleTouchStart);
+        scrollContainer.removeEventListener('touchend', handleTouchEnd);
       }
     };
   }, [featuredProducts]);
@@ -201,8 +230,8 @@ function HomeContent() {
                   </Link>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/about" className="border border-white text-white px-8 py-3 inline-block font-bold rounded-full hover:bg-white hover:text-blue-900 transition-colors">
-                    Our Story
+                  <Link href="/custom-request" className="border border-white text-white px-8 py-3 inline-block font-bold rounded-full hover:bg-white hover:text-blue-900 transition-colors">
+                    Request Custom Design
                   </Link>
                 </motion.div>
               </div>
@@ -266,20 +295,20 @@ function HomeContent() {
 
         {/* Refined grid layout */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {categories.map((category, index) => (
+          {productTypes.map((type, index) => (
             <motion.div
-              key={category.name}
+              key={type.name}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 * index }}
               whileHover={{ y: -5 }}
               className="amazon-card group relative overflow-hidden rounded-lg"
             >
-              <Link href={`/shop?category=${category.name.toLowerCase()}`} className="block h-full">
+              <Link href={`/shop?productType=${type.name}`} className="block h-full">
                 <div className="relative h-64 sm:h-72 md:h-80 overflow-hidden">
                   <Image 
-                    src={category.image}
-                    alt={category.name}
+                    src={type.image}
+                    alt={type.name}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
@@ -289,7 +318,7 @@ function HomeContent() {
                 
                 <div className="absolute bottom-0 left-0 right-0 p-5">
                   <div className="p-4 rounded-lg bg-white/90 backdrop-blur-sm">
-                    <h3 className="text-primary-color text-xl font-bold mb-2">{category.name}</h3>
+                    <h3 className="text-primary-color text-xl font-bold mb-2">{type.name}</h3>
                     <div className="flex items-center">
                       <span className="amazon-button-primary py-1 px-3 text-sm inline-flex items-center">
                         Shop Now
@@ -347,7 +376,11 @@ function HomeContent() {
           <div 
             ref={scrollRef}
             className="flex space-x-3 sm:space-x-4 md:space-x-6 pb-8 overflow-x-auto scrollbar-hide"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            style={{ 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch' 
+            }}
           >
             {loading ? (
               // Loading placeholders

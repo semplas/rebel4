@@ -90,7 +90,7 @@ export default function About() {
         className="mb-16"
       >
         <h2 className="text-2xl font-bold mb-8 uppercase tracking-wider">Our Team</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="flex flex-wrap justify-center gap-12">
           {[
             {
               name: "Alex Morgan",
@@ -129,9 +129,9 @@ export default function About() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 * index }}
               whileHover={{ y: -5 }}
-              className="glass-card"
+              className="flex flex-col items-center text-center"
             >
-              <div className="h-64 relative">
+              <div className="w-32 h-32 relative rounded-full overflow-hidden mb-4 border-2 border-accent-color">
                 <Image
                   src={member.image}
                   alt={member.name}
@@ -139,23 +139,21 @@ export default function About() {
                   className="object-cover"
                 />
               </div>
-              <div className="p-4">
-                <h3 className="font-bold text-lg">{member.name}</h3>
-                <p className="text-gray-600 mb-3">{member.role}</p>
-                <div className="flex space-x-3">
-                  <a href={member.social.twitter} target="_blank" rel="noopener noreferrer" 
-                     className="h-8 w-8 rounded-full glass flex items-center justify-center hover:bg-purple-100 transition-colors">
-                    <FaTwitter className="text-gray-700" />
-                  </a>
-                  <a href={member.social.instagram} target="_blank" rel="noopener noreferrer"
-                     className="h-8 w-8 rounded-full glass flex items-center justify-center hover:bg-purple-100 transition-colors">
-                    <FaInstagram className="text-gray-700" />
-                  </a>
-                  <a href={member.social.linkedin} target="_blank" rel="noopener noreferrer"
-                     className="h-8 w-8 rounded-full glass flex items-center justify-center hover:bg-purple-100 transition-colors">
-                    <FaLinkedinIn className="text-gray-700" />
-                  </a>
-                </div>
+              <h3 className="font-bold text-lg">{member.name}</h3>
+              <p className="text-gray-600 mb-3">{member.role}</p>
+              <div className="flex space-x-3">
+                <a href={member.social.twitter} target="_blank" rel="noopener noreferrer" 
+                   className="h-8 w-8 rounded-full glass flex items-center justify-center hover:bg-purple-100 transition-colors">
+                  <FaTwitter className="text-gray-700" />
+                </a>
+                <a href={member.social.instagram} target="_blank" rel="noopener noreferrer"
+                   className="h-8 w-8 rounded-full glass flex items-center justify-center hover:bg-purple-100 transition-colors">
+                  <FaInstagram className="text-gray-700" />
+                </a>
+                <a href={member.social.linkedin} target="_blank" rel="noopener noreferrer"
+                   className="h-8 w-8 rounded-full glass flex items-center justify-center hover:bg-purple-100 transition-colors">
+                  <FaLinkedinIn className="text-gray-700" />
+                </a>
               </div>
             </motion.div>
           ))}
