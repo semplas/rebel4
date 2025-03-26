@@ -1,5 +1,3 @@
-import { Suspense } from 'react';
-import ProductDetailClient from './ProductDetailClient';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client
@@ -7,7 +5,6 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Define generateStaticParams directly in the page file
 export async function generateStaticParams() {
   // Hardcoded IDs to ensure we always have something
   const fallbackIds = [
@@ -18,11 +15,6 @@ export async function generateStaticParams() {
     { id: '5' },
     { id: '40e1f01f-c321-45b5-8e36-638c6f7e34f9' }
   ];
-  
-  // Only run in production to avoid errors in development
-  if (process.env.NODE_ENV !== 'production') {
-    return fallbackIds;
-  }
   
   try {
     // Fetch all product IDs from Supabase
@@ -45,12 +37,4 @@ export async function generateStaticParams() {
     console.error('Failed to generate static params:', err);
     return fallbackIds;
   }
-}
-
-export default function ProductDetailPage() {
-  return (
-    <Suspense fallback={<div>Loading product...</div>}>
-      <ProductDetailClient />
-    </Suspense>
-  );
 }

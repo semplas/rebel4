@@ -1,22 +1,51 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function Home() {
-  // Featured products - expanded list
-  const featuredProducts = [
-    { id: "1", name: "Rebel Classic Oxford", price: 249.99, image: "/images/1.png" },
-    { id: "2", name: "Urban Street Runner", price: 189.99, image: "/images/1.png" },
-    { id: "3", name: "Awaknd Leather Boot", price: 299.99, image: "/images/1.png" },
-    { id: "4", name: "Signature Loafer", price: 219.99, image: "/images/1.png" },
-    { id: "5", name: "Elite Dress Shoe", price: 279.99, image: "/images/1.png" },
-    { id: "6", name: "Venture Hiking Boot", price: 259.99, image: "/images/1.png" },
-    { id: "7", name: "Comfort Slip-On", price: 169.99, image: "/images/1.png" },
-    { id: "8", name: "Performance Runner", price: 229.99, image: "/images/1.png" }
-  ];
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const scrollRef = useRef(null);
+  
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .limit(8);
+          
+        if (error) throw error;
+        
+        // Format products to match expected structure
+        const formattedProducts = data.map(product => ({
+          id: product.id,
+          name: product.name,
+          price: product.price || 0,
+          image: product.image || '/images/1.png',
+          isNew: product.is_new || false
+        }));
+        
+        setFeaturedProducts(formattedProducts);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   // Categories data
   const categories = [
@@ -69,9 +98,7 @@ export default function Home() {
     return value.toString().padStart(2, '0');
   };
 
-  // Alternative implementation using useRef and useEffect for manual animation control
-  const scrollRef = useRef(null);
-  
+  // Auto-scrolling effect
   useEffect(() => {
     const scrollContainer = scrollRef.current;
     if (!scrollContainer) return;
@@ -80,7 +107,6 @@ export default function Home() {
     let scrollPosition = 0;
     const scrollSpeed = 0.5;
     const containerWidth = scrollContainer.scrollWidth;
-    const viewportWidth = scrollContainer.clientWidth;
     
     const scroll = () => {
       scrollPosition += scrollSpeed;
@@ -107,10 +133,12 @@ export default function Home() {
     
     return () => {
       cancelAnimationFrame(animationId);
-      scrollContainer.removeEventListener('mouseenter', handleMouseEnter);
-      scrollContainer.removeEventListener('mouseleave', handleMouseLeave);
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('mouseenter', handleMouseEnter);
+        scrollContainer.removeEventListener('mouseleave', handleMouseLeave);
+      }
     };
-  }, []);
+  }, [featuredProducts]);
 
   return (
     <div className="py-6">
@@ -308,82 +336,90 @@ export default function Home() {
           </Link>
         </div>
         
-        {/* Auto-scrolling carousel - FIXED with useRef implementation */}
+        {/* Auto-scrolling carousel */}
         <div className="relative overflow-hidden px-4 sm:px-0">
           <div 
             ref={scrollRef}
             className="flex space-x-3 sm:space-x-4 md:space-x-6 pb-8 overflow-x-auto scrollbar-hide"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {/* First set of products */}
-            {featuredProducts.map((product) => (
-              <motion.div
-                key={`${product.id}-original`}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="min-w-[180px] sm:min-w-[220px] md:min-w-[260px] lg:min-w-[280px] flex-shrink-0"
-              >
-                <div className="glass-card h-full flex flex-col">
-                  <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden">
-                    <div className="absolute top-3 left-3 z-10 bg-accent-color text-white text-xs px-2 py-1 rounded-full font-medium">
-                      New Season
-                    </div>
-                    <Image 
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover p-4 transition-all duration-500 hover:scale-110"
-                    />
-                  </div>
-                  <div className="p-3 sm:p-4 md:p-5 flex-grow flex flex-col">
-                    <h3 className="font-medium text-base sm:text-lg mb-1 line-clamp-1">{product.name}</h3>
-                    <p className="text-accent-color font-bold text-lg sm:text-xl mb-3">£{product.price}</p>
-                    <div className="mt-auto">
-                      <motion.button 
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="w-full glass-button py-2.5 rounded-lg font-medium transition-colors"
-                      >
-                        Buy Now
-                      </motion.button>
+            {loading ? (
+              // Loading placeholders
+              Array(4).fill(0).map((_, index) => (
+                <div 
+                  key={`loading-${index}`}
+                  className="min-w-[180px] sm:min-w-[220px] md:min-w-[260px] lg:min-w-[280px] flex-shrink-0"
+                >
+                  <div className="glass-card h-full flex flex-col animate-pulse">
+                    <div className="h-40 sm:h-48 md:h-56 lg:h-64 bg-gray-200"></div>
+                    <div className="p-3 sm:p-4 md:p-5">
+                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded w-2/3"></div>
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            ))}
+              ))
+            ) : (
+              // First set of products
+              featuredProducts.map((product) => (
+                <motion.div
+                  key={`${product.id}-original`}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  className="min-w-[180px] sm:min-w-[220px] md:min-w-[260px] lg:min-w-[280px] flex-shrink-0"
+                >
+                  <Link href={`/shop/product/${product.id}`}>
+                    <div className="glass-card h-full flex flex-col">
+                      <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden">
+                        {product.isNew && (
+                          <div className="absolute top-3 left-3 z-10 bg-accent-color text-white text-xs px-2 py-1 rounded-full font-medium">
+                            New Season
+                          </div>
+                        )}
+                        <Image 
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          className="object-cover p-4 transition-all duration-500 hover:scale-110"
+                        />
+                      </div>
+                      <div className="p-3 sm:p-4 md:p-5 flex-grow flex flex-col">
+                        <h3 className="font-bold text-sm sm:text-base">{product.name}</h3>
+                        <p className="text-accent-color font-semibold mt-1">${product.price.toFixed(2)}</p>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))
+            )}
             
-            {/* Duplicate set for infinite scroll effect */}
-            {featuredProducts.map((product) => (
+            {/* Duplicate set for infinite scroll effect - only show if not loading */}
+            {!loading && featuredProducts.map((product) => (
               <motion.div
                 key={`${product.id}-duplicate`}
                 whileHover={{ y: -8, scale: 1.02 }}
                 className="min-w-[180px] sm:min-w-[220px] md:min-w-[260px] lg:min-w-[280px] flex-shrink-0"
               >
-                <div className="glass-card h-full flex flex-col">
-                  <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden">
-                    <div className="absolute top-3 left-3 z-10 bg-accent-color text-white text-xs px-2 py-1 rounded-full font-medium">
-                      New Season
+                <Link href={`/shop/product/${product.id}`}>
+                  <div className="glass-card h-full flex flex-col">
+                    <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden">
+                      {product.isNew && (
+                        <div className="absolute top-3 left-3 z-10 bg-accent-color text-white text-xs px-2 py-1 rounded-full font-medium">
+                          New Season
+                        </div>
+                      )}
+                      <Image 
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-cover p-4 transition-all duration-500 hover:scale-110"
+                      />
                     </div>
-                    <Image 
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover p-4 transition-all duration-500 hover:scale-110"
-                    />
-                  </div>
-                  <div className="p-3 sm:p-4 md:p-5 flex-grow flex flex-col">
-                    <h3 className="font-medium text-base sm:text-lg mb-1 line-clamp-1">{product.name}</h3>
-                    <p className="text-accent-color font-bold text-lg sm:text-xl mb-3">£{product.price}</p>
-                    <div className="mt-auto">
-                      <motion.button 
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="w-full glass-button py-2.5 rounded-lg font-medium transition-colors"
-                      >
-                        Buy Now
-                      </motion.button>
+                    <div className="p-3 sm:p-4 md:p-5 flex-grow flex flex-col">
+                      <h3 className="font-bold text-sm sm:text-base">{product.name}</h3>
+                      <p className="text-accent-color font-semibold mt-1">${product.price.toFixed(2)}</p>
                     </div>
                   </div>
-                </div>
+                </Link>
               </motion.div>
             ))}
           </div>

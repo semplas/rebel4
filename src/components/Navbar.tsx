@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import CartIcon from './CartIcon';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -43,15 +42,13 @@ export default function Navbar() {
             <Link href="/admin" className="px-3 py-2 rounded-md text-sm font-medium hover:text-purple-600 transition-colors">
               Admin
             </Link>
-            <CartIcon />
           </div>
           
           {/* Mobile Navigation Button */}
           <div className="flex items-center md:hidden">
-            <CartIcon />
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="ml-2 p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none"
+              className="p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none"
               aria-label="Toggle menu"
             >
               {!isMenuOpen ? (
