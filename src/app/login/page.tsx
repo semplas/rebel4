@@ -1,15 +1,22 @@
 'use client';
 
+<<<<<<< HEAD
 import { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+=======
+import { useState } from 'react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
+>>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+<<<<<<< HEAD
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const router = useRouter();
   const supabase = createClientComponentClient();
@@ -35,13 +42,21 @@ export default function LoginPage() {
     };
   }, [loading]);
 
+=======
+  const router = useRouter();
+  const supabase = createClientComponentClient();
+
+>>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
+<<<<<<< HEAD
       console.log('Attempting login with:', email);
+=======
+>>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -49,11 +64,17 @@ export default function LoginPage() {
 
       if (error) throw error;
       
+<<<<<<< HEAD
       console.log('Login successful, redirecting...');
       // Redirect to admin page on successful login
       router.push('/admin');
     } catch (err) {
       console.error('Login error:', err);
+=======
+      // Redirect to admin page on successful login
+      router.push('/admin');
+    } catch (err) {
+>>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
       setError(err.message);
     } finally {
       setLoading(false);
@@ -68,11 +89,14 @@ export default function LoginPage() {
             Admin Login
           </h2>
         </div>
+<<<<<<< HEAD
         {registrationSuccess && (
           <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md text-center">
             Account created successfully! Please check your email to confirm your registration.
           </div>
         )}
+=======
+>>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -123,6 +147,7 @@ export default function LoginPage() {
             </button>
           </div>
         </form>
+<<<<<<< HEAD
         <div className="text-sm text-center mt-4">
           Don't have an account?{' '}
           <Link href="/register" className="font-medium text-accent-color hover:text-accent-color-dark">
@@ -133,3 +158,9 @@ export default function LoginPage() {
     </div>
   );
 }
+=======
+      </div>
+    </div>
+  );
+}
+>>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f

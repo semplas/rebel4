@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
+<<<<<<< HEAD
 interface ProductCardProps {
   product: {
     id: string;
@@ -17,6 +18,9 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
+=======
+const ProductCard = ({ product, onEdit, onDelete }) => {
+>>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
   return (
     <div className="amazon-card overflow-hidden">
       <div className="relative h-48 bg-gray-100">
@@ -42,6 +46,7 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
       
       <div className="p-4">
         <h3 className="font-medium text-gray-900 mb-1 truncate">{product.name}</h3>
+<<<<<<< HEAD
         <p className="text-accent-color font-bold mb-2">£{parseFloat(product.price.toString()).toFixed(2)}</p>
         <p className="text-sm text-gray-500 mb-3 line-clamp-2">{product.description}</p>
         
@@ -68,3 +73,14 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
 };
 
 export default ProductCard;
+=======
+        <p className="text-accent-color font-bold mb-2">£{parseFloat(product.price).toFixed(2)}</p>
+        <p className="text-sm text-gray-500 mb-3 line-clamp-2">{product.description}</p>
+        
+        <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+          <span className="text-xs text-gray-500">Stock: {product.stock}</span>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => onEdit(product)}
+              className="p
+>>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
