@@ -422,40 +422,37 @@ export default function ShopPage() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {currentProducts.map((product, index) => (
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+                {filteredProducts.map((product) => (
                   <motion.div
                     key={product.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 * (index % 3) }}
                     whileHover={{ y: -8, scale: 1.02 }}
-                    className="flex-shrink-0"
+                    className="flex flex-col h-full"
                   >
-                    <Link href={`/shop/product/${product.id}`} className="block h-full">
+                    <Link href={`/shop/product/${product.id}`} className="h-full">
                       <div className="glass-card h-full flex flex-col">
-                        <div className="relative h-64 overflow-hidden">
+                        <div className="relative h-32 sm:h-40 md:h-48 lg:h-56 overflow-hidden">
                           {product.isNew && (
-                            <div className="absolute top-3 left-3 z-10 bg-accent-color text-white text-xs px-2 py-1 rounded-full font-medium">
-                              New Season
+                            <div className="absolute top-2 left-2 z-10 bg-accent-color text-white text-xs px-2 py-1 rounded-full font-medium">
+                              New
                             </div>
                           )}
                           <Image 
                             src={product.image}
                             alt={product.name}
                             fill
-                            className="object-cover p-4 transition-all duration-500 hover:scale-110"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            className="object-cover p-2 sm:p-4 transition-all duration-500 hover:scale-110"
+                            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                           />
                         </div>
-                        <div className="p-5 flex-grow flex flex-col">
-                          <h3 className="font-bold text-primary-color line-clamp-1">{product.name}</h3>
-                          <p className="text-accent-color font-bold mt-1 text-lg">£{product.price}</p>
-                          <div className="mt-auto pt-4">
+                        <div className="p-3 sm:p-5 flex-grow flex flex-col">
+                          <h3 className="font-bold text-primary-color text-sm sm:text-base line-clamp-1">{product.name}</h3>
+                          <p className="text-accent-color font-bold mt-1 text-base sm:text-lg">£{product.price}</p>
+                          <div className="mt-auto pt-2 sm:pt-4">
                             <motion.div 
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              className="w-full glass-button py-2.5 rounded-full uppercase tracking-wider text-sm font-bold shadow-md hover:shadow-lg transition-all text-center"
+                              className="w-full glass-button py-1.5 sm:py-2.5 rounded-full uppercase tracking-wider text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all text-center"
                             >
                               Buy Now
                             </motion.div>

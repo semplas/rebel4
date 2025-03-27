@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import DevTools from '@/components/DevTools';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,6 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Awaknd Rebel - Premium Footwear",
   description: "Premium custom shoes handcrafted with quality materials",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=5",
 };
 
 export default function RootLayout({
@@ -32,6 +34,7 @@ export default function RootLayout({
         <Navbar />
         <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">{children}</main>
         <Footer />
+        <DevTools />
       </body>
     </html>
   );

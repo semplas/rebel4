@@ -180,10 +180,10 @@ function HomeContent() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="mb-12 relative overflow-hidden"
+        className="mb-8 sm:mb-12 relative overflow-hidden"
       >
-        <div className="bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 rounded-2xl shadow-xl">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 md:py-16 flex flex-col md:flex-row items-center">
+        <div className="bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 rounded-lg sm:rounded-2xl shadow-xl">
+          <div className="container-responsive py-6 sm:py-10 md:py-16 flex flex-col md:flex-row items-center">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -294,7 +294,7 @@ function HomeContent() {
         </div>
 
         {/* Refined grid layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {productTypes.map((type, index) => (
             <motion.div
               key={type.name}

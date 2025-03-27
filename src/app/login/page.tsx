@@ -1,6 +1,10 @@
 'use client';
 
+<<<<<<< Updated upstream
 <<<<<<< HEAD
+=======
+import { Suspense } from 'react';
+>>>>>>> Stashed changes
 import { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
@@ -11,7 +15,10 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
 >>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
 
-export default function LoginPage() {
+// Component that uses useSearchParams and other client hooks
+function LoginPageContent() {
+  // Original component code
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -158,9 +165,23 @@ export default function LoginPage() {
     </div>
   );
 }
+<<<<<<< Updated upstream
 =======
       </div>
     </div>
   );
 }
 >>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
+=======
+
+}
+
+// Main page component with Suspense
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginPageContent />
+    </Suspense>
+  );
+}
+>>>>>>> Stashed changes

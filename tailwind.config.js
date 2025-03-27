@@ -6,6 +6,14 @@ module.exports = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    screens: {
+      'xs': '375px',
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+    },
     extend: {
       colors: {
         'accent-color': 'var(--accent-color)',
@@ -33,5 +41,15 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Try to load the plugin safely
+    ...(function() {
+      try {
+        return [require('@tailwindcss/aspect-ratio')];
+      } catch (e) {
+        console.warn('Warning: @tailwindcss/aspect-ratio plugin not found');
+        return [];
+      }
+    })(),
+  ],
 }

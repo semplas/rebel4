@@ -22,7 +22,7 @@ export default function ResponsiveImage({
   height,
   className = '',
   priority = false,
-  sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
+  sizes = '(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw',
 }: ResponsiveImageProps) {
   const [error, setError] = useState(false);
   const fallbackSrc = '/images/1.png'; // Default fallback image
@@ -40,10 +40,14 @@ export default function ResponsiveImage({
       fill={fill}
       width={!fill ? width : undefined}
       height={!fill ? height : undefined}
-      className={className}
+      className={`${className} transition-opacity opacity-0 duration-[0.5s]`}
       priority={priority}
       sizes={sizes}
       onError={handleError}
+      onLoad={(event) => {
+        event.currentTarget.classList.remove('opacity-0');
+      }}
+      loading={priority ? 'eager' : 'lazy'}
     />
   );
 }

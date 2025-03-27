@@ -1,41 +1,82 @@
 import React from 'react';
-import Image from 'next/image';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
+<<<<<<< Updated upstream
 <<<<<<< HEAD
+=======
+// Keep this outside the component
+const getImageUrl = (imageUrl: string) => {
+  if (!imageUrl) return '';
+  
+  // If it's already a data URL (from file upload preview), return as is
+  if (imageUrl.startsWith('data:')) return imageUrl;
+  
+  // If it's a relative URL, make it absolute
+  if (imageUrl.startsWith('/')) {
+    return `${window.location.origin}${imageUrl}`;
+  }
+  
+  // If it's a Supabase URL with the storage path format
+  if (imageUrl.includes('/storage/v1/object/public/images/')) {
+    return imageUrl; // It's already a complete URL
+  }
+  
+  // If it's just the filename or path without the full URL
+  if (!imageUrl.startsWith('http')) {
+    const path = imageUrl.startsWith('images/') ? imageUrl : `images/${imageUrl}`;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    return `${supabaseUrl}/storage/v1/object/public/${path}`;
+  }
+  
+  // Otherwise return the URL as is
+  return imageUrl;
+};
+
+>>>>>>> Stashed changes
 interface ProductCardProps {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    images?: string[];
-    is_new?: boolean;
-    description?: string;
-    stock?: number;
-  };
-  onEdit: (product: any) => void;
-  onDelete: (id: string) => void;
+  product: any;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
 const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
+<<<<<<< Updated upstream
 =======
 const ProductCard = ({ product, onEdit, onDelete }) => {
 >>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
+=======
+  // Move this inside the component
+  const getValidImageUrl = React.useCallback((product) => {
+    // Check if product has images array with at least one item
+    if (product.images && Array.isArray(product.images) && product.images.length > 0 && product.images[0]) {
+      return getImageUrl(product.images[0]);
+    }
+    
+    // Fallback to product.image if available
+    if (product.image) {
+      return getImageUrl(product.image);
+    }
+    
+    // Final fallback to placeholder
+    return '/placeholder-image.jpg';
+  }, []);
+
+>>>>>>> Stashed changes
   return (
     <div className="amazon-card overflow-hidden">
       <div className="relative h-48 bg-gray-100">
-        {product.images && product.images[0] ? (
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full text-gray-400">
-            No image
-          </div>
-        )}
+        <img
+          src={getValidImageUrl(product)}
+          alt={product.name || "Product image"}
+          className="absolute inset-0 w-full h-full object-cover"
+          onError={(e) => {
+            // Only set src if it's not already the placeholder
+            if (e.currentTarget.src !== `${window.location.origin}/placeholder-image.jpg`) {
+              e.currentTarget.src = "/placeholder-image.jpg";
+            }
+          }}
+          loading="lazy" // Add lazy loading
+        />
         
         {product.is_new && (
           <span className="absolute top-2 left-2 bg-accent-color text-black text-xs px-2 py-1 rounded">

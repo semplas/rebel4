@@ -1,9 +1,15 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useState } from 'react';
-// import Link from 'next/link';
+import Link from 'next/link';
 
-export default function Checkout() {
+// Component that uses useSearchParams and other client hooks
+function CheckoutPageContent() {
+  // Original component code
+  // 
+
+
   const [step, setStep] = useState(1);
   
   // Mock cart data
@@ -238,5 +244,15 @@ export default function Checkout() {
         </div>
       </div>
     </div>
+  );
+}
+}
+
+// Main page component with Suspense
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CheckoutPageContent />
+    </Suspense>
   );
 }

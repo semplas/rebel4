@@ -1,11 +1,15 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function RegisterPage() {
+// Component that uses useSearchParams and other client hooks
+function RegisterPageContent() {
+  // Original component code
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -29,7 +33,10 @@ export default function RegisterPage() {
     try {
       const { error } = await supabase.auth.signUp({
         email,
-        password
+        password,
+        options: {
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.awakndrebel.com'}/login?verified=true`
+        }
       });
 
       if (error) throw error;
@@ -126,5 +133,21 @@ export default function RegisterPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+// Add this export at the end of the file to ensure this page is included in the static build
+export function generateStaticParams() {
+  return [];
+}
+
+}
+
+// Main page component with Suspense
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RegisterPageContent />
+    </Suspense>
   );
 }

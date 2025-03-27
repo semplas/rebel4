@@ -2,12 +2,60 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { FaPlus, FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaImage } from 'react-icons/fa';
 import Image from 'next/image';
 import AddEditProduct from './AddEditProduct';
 import ProductCard from './ProductCard';
 
+<<<<<<< Updated upstream
 <<<<<<< HEAD
+=======
+const getImageUrl = (imageUrl: string) => {
+  if (!imageUrl) {
+    console.log("Empty image URL provided");
+    return '';
+  }
+  
+  console.log("Processing image URL:", imageUrl);
+  
+  // If it's already a data URL (from file upload preview), return as is
+  if (imageUrl.startsWith('data:')) {
+    console.log("→ Data URL detected, returning as is");
+    return imageUrl;
+  }
+  
+  // If it's a relative URL, make it absolute
+  if (imageUrl.startsWith('/')) {
+    const absoluteUrl = `${window.location.origin}${imageUrl}`;
+    console.log("→ Relative URL detected, converted to:", absoluteUrl);
+    return absoluteUrl;
+  }
+  
+  // If it's a Supabase URL with the storage path format
+  if (imageUrl.includes('/storage/v1/object/public/')) {
+    console.log("→ Complete Supabase URL detected, returning as is");
+    return imageUrl; // It's already a complete URL
+  }
+  
+  // If it's just the filename or path without the full URL
+  if (!imageUrl.startsWith('http')) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    console.log("→ SUPABASE URL:", supabaseUrl);
+    
+    // Handle both "images/filename.jpg" and just "filename.jpg"
+    const path = imageUrl.startsWith('images/') ? imageUrl : `images/${imageUrl}`;
+    const fullUrl = `${supabaseUrl}/storage/v1/object/public/${path}`;
+    
+    console.log("→ Partial URL detected, converted to:", fullUrl);
+    return fullUrl;
+  }
+  
+  // Otherwise return the URL as is
+  console.log("→ Full URL detected, returning as is");
+  return imageUrl;
+};
+
+>>>>>>> Stashed changes
 export default function Products() {
   const supabase = createClientComponentClient();
 =======
@@ -76,6 +124,33 @@ export default function Products({ initialShowAddProduct = false, isAuthenticate
   };
 >>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
 
+  // Move the getValidImageUrl function inside the component
+  const getValidImageUrl = React.useCallback((product) => {
+    // Check if product has images array with at least one item
+    if (product.images && Array.isArray(product.images) && product.images.length > 0 && product.images[0]) {
+      return getImageUrl(product.images[0]);
+    }
+    
+    // Fallback to product.image if available
+    if (product.image) {
+      return getImageUrl(product.image);
+    }
+    
+    // Final fallback to placeholder
+    return '/placeholder-image.jpg';
+  }, []);
+
+  const DebugPanel = ({ products }) => {
+    if (!products || products.length === 0) return null;
+  
+    return (
+      <div className="bg-gray-100 p-4 mb-4 rounded text-xs overflow-auto max-h-40">
+        <h3 className="font-bold mb-2">Debug Info (First Product)</h3>
+        <pre>{JSON.stringify(products[0], null, 2)}</pre>
+      </div>
+    );
+  };
+
   // Fetch products on component mount
   useEffect(() => {
     fetchProducts();
@@ -84,12 +159,31 @@ export default function Products({ initialShowAddProduct = false, isAuthenticate
   const fetchProducts = async () => {
     try {
       setLoading(true);
+      console.log("Fetching products from Supabase...");
+      
       const { data, error } = await supabase
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
         
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+      
+      console.log("Products fetched from Supabase:", data);
+      
+      // Check image data for each product
+      if (data && data.length > 0) {
+        data.forEach(product => {
+          console.log(`Product ${product.id} - ${product.name}:`, {
+            rawImages: product.images,
+            processedFirstImage: product.images && product.images[0] ? getImageUrl(product.images[0]) : 'No image'
+          });
+        });
+      } else {
+        console.log("No products found or empty data array returned");
+      }
       
       setProducts(data || []);
     } catch (err) {
@@ -454,19 +548,19 @@ export default function Products({ initialShowAddProduct = false, isAuthenticate
                   {filteredProducts.map(product => (
                     <tr key={product.id} className="border-b">
                       <td className="px-4 py-2">
-                        <div className="w-16 h-16 relative">
-                          {product.images && product.images[0] ? (
-                            <Image
-                              src={product.images[0]}
-                              alt={product.name}
-                              fill
-                              className="object-cover rounded"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded">
-                              No image
-                            </div>
-                          )}
+                        <div className="w-16 h-16 relative bg-gray-100">
+                          <img
+                            src={getValidImageUrl(product)}
+                            alt={product.name || "Product image"}
+                            className="absolute inset-0 w-full h-full object-cover rounded"
+                            onError={(e) => {
+                              // Only set src if it's not already the placeholder
+                              if (e.currentTarget.src !== `${window.location.origin}/placeholder-image.jpg`) {
+                                e.currentTarget.src = "/placeholder-image.jpg";
+                              }
+                            }}
+                            loading="lazy" // Add lazy loading
+                          />
                         </div>
                       </td>
                       <td className="px-4 py-2">{product.name}</td>

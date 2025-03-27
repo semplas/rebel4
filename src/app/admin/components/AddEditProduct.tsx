@@ -15,27 +15,42 @@ interface ProductFormProps {
 const getImageUrl = (imageUrl: string) => {
   if (!imageUrl) return '';
   
+  console.log("Processing image URL:", imageUrl);
+  
   // If it's already a data URL (from file upload preview), return as is
-  if (imageUrl.startsWith('data:')) return imageUrl;
+  if (imageUrl.startsWith('data:')) {
+    console.log("→ Data URL detected, returning as is");
+    return imageUrl;
+  }
   
   // If it's a relative URL, make it absolute
   if (imageUrl.startsWith('/')) {
-    return `${window.location.origin}${imageUrl}`;
+    const absoluteUrl = `${window.location.origin}${imageUrl}`;
+    console.log("→ Relative URL detected, converted to:", absoluteUrl);
+    return absoluteUrl;
   }
   
   // If it's a Supabase URL with the storage path format
-  if (imageUrl.includes('/storage/v1/object/public/images/')) {
+  if (imageUrl.includes('/storage/v1/object/public/')) {
+    console.log("→ Complete Supabase URL detected, returning as is");
     return imageUrl; // It's already a complete URL
   }
   
   // If it's just the filename or path without the full URL
   if (!imageUrl.startsWith('http')) {
-    const path = imageUrl.startsWith('images/') ? imageUrl : `images/${imageUrl}`;
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    return `${supabaseUrl}/storage/v1/object/public/${path}`;
+    console.log("→ SUPABASE URL:", supabaseUrl);
+    
+    // Handle both "images/filename.jpg" and just "filename.jpg"
+    const path = imageUrl.startsWith('images/') ? imageUrl : `images/${imageUrl}`;
+    const fullUrl = `${supabaseUrl}/storage/v1/object/public/${path}`;
+    
+    console.log("→ Partial URL detected, converted to:", fullUrl);
+    return fullUrl;
   }
   
   // Otherwise return the URL as is
+  console.log("→ Full URL detected, returning as is");
   return imageUrl;
 };
 
@@ -49,6 +64,16 @@ const debugImageUrl = (imageUrl: string, context: string) => {
   return '';
 };
 
+const getValidImageUrl = (imageUrl) => {
+  if (!imageUrl) return '/placeholder-image.jpg';
+  
+  // Process the URL
+  const processedUrl = getImageUrl(imageUrl);
+  console.log(`Processing image URL: ${imageUrl} -> ${processedUrl}`);
+  
+  return processedUrl;
+};
+
 export default function AddEditProduct({ editingProduct, onClose, onSave }: ProductFormProps) {
   const supabase = createClientComponentClient();
   const [isSaving, setIsSaving] = useState(false);
@@ -60,7 +85,6 @@ export default function AddEditProduct({ editingProduct, onClose, onSave }: Prod
   const [productForm, setProductForm] = useState({
     name: '',
     price: '',
-    category: 'Formal',
     description: '',
     images: ['', '', ''],
     features: ['', '', ''],
@@ -70,24 +94,50 @@ export default function AddEditProduct({ editingProduct, onClose, onSave }: Prod
     productType: 'Shoes' // Default to Shoes
   });
 
+  useEffect(() => {
+    console.log("NEXT_PUBLIC_SUPABASE_URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
+  }, []);
+
   // Initialize form with product data if editing
   useEffect(() => {
     if (editingProduct) {
+      console.log("Editing product data:", editingProduct);
+      console.log("Images from DB:", editingProduct.images);
+      
+      // Safely handle images array
+      let imagesArray = ['', '', ''];
+      if (editingProduct.images && Array.isArray(editingProduct.images)) {
+        console.log("Images array is valid, length:", editingProduct.images.length);
+        // Take up to 3 images from the existing array
+        const existingImages = editingProduct.images.slice(0, 3);
+        
+        // Debug each image URL
+        existingImages.forEach((img, idx) => {
+          console.log(`Raw image ${idx}:`, img);
+          console.log(`Processed image ${idx}:`, getImageUrl(img));
+        });
+        
+        // Fill the rest with empty strings
+        imagesArray = [...existingImages, ...Array(3 - existingImages.length).fill('')];
+      } else {
+        console.log("Images array is invalid or missing:", editingProduct.images);
+      }
+      
+      console.log("Final images array:", imagesArray);
+      
+      // Set form data with images
       setProductForm({
         name: editingProduct.name || '',
         price: editingProduct.price?.toString() || '',
-        category: editingProduct.category || 'Formal',
         description: editingProduct.description || '',
-        images: editingProduct.images?.length ? 
-          [...editingProduct.images, ...Array(3 - editingProduct.images.length).fill('')] : 
-          ['', '', ''],
-        features: editingProduct.features?.length ? 
-          [...editingProduct.features, ...Array(3 - editingProduct.features.length).fill('')] : 
-          ['', '', ''],
+        images: imagesArray,
+        features: editingProduct.features && Array.isArray(editingProduct.features) 
+          ? [...editingProduct.features.slice(0, 3), ...Array(3 - Math.min(editingProduct.features.length, 3)).fill('')]
+          : ['', '', ''],
         color: editingProduct.color || '',
         is_new: editingProduct.is_new || false,
         stock: editingProduct.stock?.toString() || '0',
-        productType: editingProduct.productType || 'Shoes'
+        productType: editingProduct.product_type || 'Shoes'
       });
     }
   }, [editingProduct]);
@@ -246,10 +296,13 @@ export default function AddEditProduct({ editingProduct, onClose, onSave }: Prod
       const productData = {
         name: productForm.name,
         price: parseFloat(productForm.price),
-        category: productForm.category,
         description: productForm.description,
         images: newImages.filter(img => img),
-        product_type: productForm.productType // Use 'product_type' after migration
+        product_type: productForm.productType,
+        color: productForm.color,
+        is_new: productForm.is_new,
+        stock: parseInt(productForm.stock) || 0,
+        features: productForm.features.filter(f => f)
       };
       
       console.log("Saving product with data:", productData);
@@ -336,32 +389,16 @@ export default function AddEditProduct({ editingProduct, onClose, onSave }: Prod
                 />
               </div>
               
-              {/* Category */}
+              {/* Product Type */}
               <div>
                 <label className="amazon-label">
-                  Category
-                </label>
-                <select
-                  value={productForm.category}
-                  onChange={(e) => setProductForm({...productForm, category: e.target.value})}
-                  className="amazon-input w-full"
-                >
-                  <option value="Formal">Formal</option>
-                  <option value="Casual">Casual</option>
-                  <option value="Sports">Sports</option>
-                  <option value="Customs">Customs</option>
-                </select>
-              </div>
-              
-              {/* Product Type */}
-              <div className="mb-4">
-                <label className="amazon-label">
-                  Product Type
+                  Product Type*
                 </label>
                 <select
                   value={productForm.productType}
                   onChange={(e) => setProductForm({...productForm, productType: e.target.value})}
                   className="amazon-input w-full"
+                  required
                 >
                   <option value="Shoes">Shoes</option>
                   <option value="Materials">Materials</option>
@@ -461,25 +498,25 @@ export default function AddEditProduct({ editingProduct, onClose, onSave }: Prod
                     <div className="aspect-square relative mb-3 bg-gray-100 rounded flex items-center justify-center overflow-hidden">
                       {productForm.images[index] ? (
                         <>
-                          <Image 
-                            src={debugImageUrl(productForm.images[index], `Display image ${index}`)}
-                            alt={`Product image ${index + 1}`}
-                            fill
-                            className="object-cover"
-                            unoptimized={true}
-                            onError={(e) => {
-                              console.error(`Image ${index} failed to load:`, productForm.images[index]);
-                              e.currentTarget.src = "/placeholder-image.jpg"; // Fallback image
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveImage(index)}
-                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
-                            aria-label="Remove image"
-                          >
-                            <FaTrash size={12} />
-                          </button>
+                          <div className="relative w-full h-full">
+                            <img 
+                              src={getValidImageUrl(productForm.images[index])}
+                              alt={`Product image ${index + 1}`}
+                              className="absolute inset-0 w-full h-full object-cover"
+                              onError={(e) => {
+                                console.error(`Image ${index} failed to load:`, productForm.images[index]);
+                                e.currentTarget.src = "/placeholder-image.jpg";
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(index)}
+                              className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
+                              aria-label="Remove image"
+                            >
+                              <FaTrash size={12} />
+                            </button>
+                          </div>
                         </>
                       ) : (
                         <div className="text-gray-400 text-sm">No image</div>
