@@ -1,3 +1,4 @@
+import { generateStaticParams } from './generateStaticParams';
 import { Suspense } from 'react';
 import ProductDetailClient from './ProductDetailClient';
 import { createClient } from '@supabase/supabase-js';
@@ -46,6 +47,9 @@ export async function generateStaticParams() {
     ];
   }
 }
+
+// Remove this duplicate export
+// export { generateStaticParams };
 
 export default function ProductDetailPage() {
   return (

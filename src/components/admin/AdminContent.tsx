@@ -7,12 +7,13 @@ import Products from '@/app/admin/components/Products';
 import Orders from '@/app/admin/components/Orders';
 import Banners from '@/app/admin/components/Banners';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { FaChartLine, FaBoxOpen, FaShoppingCart, FaImages } from 'react-icons/fa';
+import { FaChartLine, FaBoxOpen, FaShoppingCart, FaImages, FaUser } from 'react-icons/fa';
 
 export default function AdminContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [userEmail, setUserEmail] = useState('');
   const supabase = createClientComponentClient();
   
   // Authentication logic
@@ -20,12 +21,23 @@ export default function AdminContent() {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
+      
+      // Get user email if authenticated
+      if (session?.user) {
+        setUserEmail(session.user.email || '');
+      }
+      
       setIsLoading(false);
       
       // Set up auth state listener
       const { data: { subscription } } = await supabase.auth.onAuthStateChange(
         (event, session) => {
           setIsAuthenticated(!!session);
+          if (session?.user) {
+            setUserEmail(session.user.email || '');
+          } else {
+            setUserEmail('');
+          }
         }
       );
       
@@ -38,7 +50,52 @@ export default function AdminContent() {
   }, [supabase.auth]);
   
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      setIsLoading(true);
+      console.log('Starting logout process...');
+      
+      // Force client-side state update
+      setIsAuthenticated(false);
+      
+      // Use the global scope to completely sign out from all devices
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      if (error) {
+        console.warn('Sign out API call had an error:', error);
+      }
+      
+      // Clear any local storage items related to auth
+      localStorage.removeItem('supabase.auth.token');
+      
+      // For older versions of Supabase
+      const localStorageKeys = Object.keys(localStorage);
+      const supabaseKeys = localStorageKeys.filter(key => 
+        key.startsWith('sb-') || 
+        key.includes('supabase')
+      );
+      
+      supabaseKeys.forEach(key => {
+        console.log('Removing localStorage key:', key);
+        localStorage.removeItem(key);
+      });
+      
+      // Clear cookies that might be persisting the session
+      document.cookie.split(';').forEach(cookie => {
+        const [name] = cookie.trim().split('=');
+        if (name.includes('supabase') || name.includes('sb-')) {
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        }
+      });
+      
+      console.log('Forced logout completed');
+      
+      // Redirect to login page with a cache-busting parameter
+      window.location.href = '/admin?logout=' + new Date().getTime();
+    } catch (err) {
+      console.error('Unexpected error during forced logout:', err);
+      window.location.href = '/admin?logout=' + new Date().getTime();
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   if (isLoading) {
@@ -61,12 +118,18 @@ export default function AdminContent() {
       <div className="bg-primary-color text-white shadow-md">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <h1 className="text-xl font-bold">Awaknd Rebel Admin</h1>
-          <button 
-            onClick={handleLogout}
-            className="px-3 py-1 text-sm bg-accent-color text-black rounded hover:bg-[#F0AD4E] transition-colors"
-          >
-            Logout
-          </button>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center text-sm">
+              <FaUser className="mr-2" />
+              <span>{userEmail}</span>
+            </div>
+            <button 
+              onClick={handleLogout}
+              className="px-3 py-1 text-sm bg-accent-color text-black rounded hover:bg-[#F0AD4E] transition-colors"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
       

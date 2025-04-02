@@ -6,16 +6,20 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Adding a comment to test Augment
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable static export in production
-  output: process.env.NODE_ENV === 'production' ? "export" : undefined,
-  // Set the output directory to 'out' instead of '.next'
-  distDir: process.env.NODE_ENV === 'production' ? "out" : ".next",
+  // Remove the static export setting
+  // output: process.env.NODE_ENV === 'production' ? "export" : undefined,
+  
+  // Keep standard Next.js output
+  distDir: ".next",
+  
+  // These settings help with cPanel compatibility
+  trailingSlash: true,
+  assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH || '',
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
+  
   images: {
-    unoptimized: true,
     domains: ["placehold.co", "lnnrzyefherqaftvqomt.supabase.co"],
     remotePatterns: [
       {
@@ -35,8 +39,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  
-  // Remove exportPathMap as it's not compatible with App Router
 };
 
 module.exports = nextConfig;

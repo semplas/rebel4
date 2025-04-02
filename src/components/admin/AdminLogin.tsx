@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { FaLock } from 'react-icons/fa';
 
@@ -11,6 +11,32 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const supabase = createClientComponentClient();
+
+  // Check for logout parameter and clear any lingering session
+  useEffect(() => {
+    const checkForLogout = async () => {
+      // If URL has logout parameter, ensure we're really logged out
+      if (window.location.search.includes('logout')) {
+        console.log('Logout parameter detected, ensuring session is cleared');
+        
+        try {
+          // Try to sign out again just to be sure
+          await supabase.auth.signOut({ scope: 'global' }).catch(() => {});
+          
+          // Clear any localStorage items
+          Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('sb-') || key.includes('supabase')) {
+              localStorage.removeItem(key);
+            }
+          });
+        } catch (err) {
+          console.error('Error in logout cleanup:', err);
+        }
+      }
+    };
+    
+    checkForLogout();
+  }, [supabase.auth]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

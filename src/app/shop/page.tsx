@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination as SwiperPagination, Autoplay } from 'swiper/modules';
 import { createClient } from '@supabase/supabase-js';
 
@@ -13,41 +12,6 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-
-// Banner data
-const banners = [
-  {
-    id: 1,
-    title: "Summer Collection",
-    subtitle: "Lightweight styles for warmer days",
-    image: "/images/1.png",
-    buttonText: "Shop Now",
-    buttonLink: "/shop?category=casual",
-    color: "from-blue-900 to-purple-900"
-  },
-  {
-    id: 2,
-    title: "Formal Essentials",
-    subtitle: "Elevate your professional wardrobe",
-    image: "/images/1.png",
-    buttonText: "Discover",
-    buttonLink: "/shop?category=formal",
-    color: "from-gray-900 to-black"
-  },
-  {
-    id: 3,
-    title: "New Arrivals",
-    subtitle: "Be the first to wear our latest designs",
-    image: "/images/1.png",
-    buttonText: "View Collection",
-    buttonLink: "/shop?new=true",
-    color: "from-amber-700 to-red-800"
-  }
-];
 
 export default function ShopPage() {
   const [products, setProducts] = useState([]);
@@ -161,49 +125,7 @@ export default function ShopPage() {
 
   return (
     <div className="py-4 max-w-6xl mx-auto px-4">
-      {/* Banner Carousel */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="mb-8"
-      >
-        <Swiper
-          modules={[Navigation, SwiperPagination, Autoplay]}
-          spaceBetween={0}
-          slidesPerView={1}
-          navigation
-          pagination={{ clickable: true }}
-          autoplay={{ delay: 5000 }}
-          className="rounded-lg overflow-hidden"
-        >
-          {banners.map((banner) => (
-            <SwiperSlide key={banner.id}>
-              <div className={`bg-gradient-to-r ${banner.color} h-64 md:h-80 relative`}>
-                <div className="absolute inset-0 flex flex-col md:flex-row items-center justify-between p-8 md:p-12">
-                  <div className="text-white md:w-1/2 text-center md:text-left mb-6 md:mb-0">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-2">{banner.title}</h2>
-                    <p className="text-lg opacity-90 mb-6">{banner.subtitle}</p>
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Link href={banner.buttonLink} className="glass-button bg-white text-black px-8 py-3 inline-block font-bold">
-                        {banner.buttonText}
-                      </Link>
-                    </motion.div>
-                  </div>
-                  <div className="md:w-1/3 relative h-32 md:h-56 w-32 md:w-56">
-                    <Image
-                      src={banner.image}
-                      alt={banner.title}
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </motion.div>
+      {/* Banner Carousel removed */}
 
       {/* Search Bar */}
       <motion.div

@@ -1,9 +1,6 @@
 import React from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-=======
 // Keep this outside the component
 const getImageUrl = (imageUrl: string) => {
   if (!imageUrl) return '';
@@ -32,19 +29,13 @@ const getImageUrl = (imageUrl: string) => {
   return imageUrl;
 };
 
->>>>>>> Stashed changes
 interface ProductCardProps {
   product: any;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit: (product: any) => void;
+  onDelete: (id: string) => void;
 }
 
 const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
-<<<<<<< Updated upstream
-=======
-const ProductCard = ({ product, onEdit, onDelete }) => {
->>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
-=======
   // Move this inside the component
   const getValidImageUrl = React.useCallback((product) => {
     // Check if product has images array with at least one item
@@ -61,7 +52,6 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
     return '/placeholder-image.jpg';
   }, []);
 
->>>>>>> Stashed changes
   return (
     <div className="amazon-card overflow-hidden">
       <div className="relative h-48 bg-gray-100">
@@ -84,12 +74,14 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
           </span>
         )}
       </div>
-      
       <div className="p-4">
-        <h3 className="font-medium text-gray-900 mb-1 truncate">{product.name}</h3>
-<<<<<<< HEAD
-        <p className="text-accent-color font-bold mb-2">£{parseFloat(product.price.toString()).toFixed(2)}</p>
-        <p className="text-sm text-gray-500 mb-3 line-clamp-2">{product.description}</p>
+        <h3 className="text-lg font-semibold mb-1 truncate">{product.name}</h3>
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-lg font-bold">${product.price}</span>
+          {product.productType && (
+            <span className="text-xs bg-gray-100 px-2 py-1 rounded">{product.productType}</span>
+          )}
+        </div>
         
         <div className="flex justify-between items-center pt-3 border-t border-gray-100">
           <span className="text-xs text-gray-500">Stock: {product.stock || 0}</span>
@@ -114,14 +106,3 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
 };
 
 export default ProductCard;
-=======
-        <p className="text-accent-color font-bold mb-2">£{parseFloat(product.price).toFixed(2)}</p>
-        <p className="text-sm text-gray-500 mb-3 line-clamp-2">{product.description}</p>
-        
-        <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-          <span className="text-xs text-gray-500">Stock: {product.stock}</span>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => onEdit(product)}
-              className="p
->>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f

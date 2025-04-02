@@ -318,11 +318,7 @@ function HomeContent() {
                 
                 <div className="absolute bottom-0 left-0 right-0 p-5">
                   <div className="p-4 rounded-lg bg-white/90 backdrop-blur-sm">
-<<<<<<< HEAD
                     <h3 className="text-primary-color text-xl font-bold mb-2">{type.name}</h3>
-=======
-                    <h3 className="text-primary-color text-xl font-bold mb-2">{category.name}</h3>
->>>>>>> 1688502464d45e43b35dd8a9fddab09204b1829f
                     <div className="flex items-center">
                       <span className="amazon-button-primary py-1 px-3 text-sm inline-flex items-center">
                         Shop Now

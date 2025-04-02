@@ -246,8 +246,6 @@ function CheckoutPageContent() {
     </div>
   );
 }
-}
-
 // Main page component with Suspense
 export default function CheckoutPage() {
   return (
